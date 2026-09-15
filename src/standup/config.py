@@ -8,8 +8,6 @@ from typing import Any, TypedDict, cast
 
 import tomli_w
 
-from standup.sources.base import C, Source
-
 TOP_LEVEL_TABLES = ("report", "update", "sources")
 
 
@@ -40,6 +38,9 @@ def config_path() -> Path:
 def state_dir() -> Path:
     base = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share")
     return base / "standup"
+
+
+from standup.sources.base import C, Source  # noqa: E402
 
 
 def defaults(sources: list[Source[Any]]) -> Config:
