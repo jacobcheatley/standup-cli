@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 import typer
 
@@ -13,7 +13,7 @@ C = TypeVar("C", bound=Mapping[str, Any])
 
 
 @dataclass
-class SourceContext(Generic[C]):
+class SourceContext[C: Mapping[str, Any]]:
     config: C
     now: datetime
     cutoff: datetime | None

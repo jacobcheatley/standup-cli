@@ -4,13 +4,13 @@ version = "0.1.0"
 description = "Morning standup report: your PRs, issues, pipelines and reminders in one terminal view"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
-    "typer>=0.12",
-    "rich>=13.7",
-    "httpx>=0.27",
-    "mcp>=1.6,<2",
-    "tomli-w>=1.0",
+    "typer>=0.27.2",
+    "rich>=15.0",
+    "httpx>=0.28.1",
+    "mcp>=1.30,<2",
+    "tomli-w>=1.2",
 ]
 
 [project.urls]
@@ -20,18 +20,18 @@ Repository = "https://github.com/jacobcheatley/standup-cli"
 standup = "standup.cli:app"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8,<0.13"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/standup"]
+[tool.uv.build-backend]
+module-name = "standup"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=9.1", "ruff>=0.16.7", "mypy>=2.3.1"]
 
 [tool.ruff]
 line-length = 110
-target-version = "py311"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
