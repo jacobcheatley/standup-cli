@@ -59,6 +59,9 @@ def _ado_fan_out(status: str, org_url: str, projects: list[str]) -> list[dict[st
 
 _ADO_REST_RESOURCE = "499b84ac-1321-427f-aa17-267ca6975798"  # ADO resource id for az rest --resource
 
+# ADO reviewer votes: 10 approved, 5 approved with suggestions, 0 none, -5 waiting, -10 rejected
+_ADO_VOTE_APPROVED_WITH_SUGGESTIONS = 5
+
 
 def _ado_pr_last_activity(pr: dict[str, Any], org_url: str) -> dict[str, Any] | None:
     """Return {at, by} for the freshest thread on the PR, or None.
@@ -108,7 +111,8 @@ def _ado_pr_last_activity(pr: dict[str, Any], org_url: str) -> dict[str, Any] | 
 
 def _ado_i_approved(pr: dict[str, Any], email: str) -> bool:
     for rv in pr.get("reviewers") or []:
-        if (rv.get("uniqueName") or "").lower() == email.lower() and (rv.get("vote") or 0) >= 5:
+        vote_ok = (rv.get("vote") or 0) >= _ADO_VOTE_APPROVED_WITH_SUGGESTIONS
+        if (rv.get("uniqueName") or "").lower() == email.lower() and vote_ok:
             return True
     return False
 
