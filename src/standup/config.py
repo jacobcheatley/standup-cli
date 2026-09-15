@@ -4,9 +4,12 @@ import copy
 import os
 import tomllib
 from pathlib import Path
-from typing import Any, TypedDict, cast
+from typing import TYPE_CHECKING, Any, TypedDict, cast
 
 import tomli_w
+
+if TYPE_CHECKING:
+    from standup.sources.base import C, Source
 
 TOP_LEVEL_TABLES = ("report", "update", "sources")
 
@@ -38,9 +41,6 @@ def config_path() -> Path:
 def state_dir() -> Path:
     base = Path(os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share")
     return base / "standup"
-
-
-from standup.sources.base import C, Source  # noqa: E402
 
 
 def defaults(sources: list[Source[Any]]) -> Config:
@@ -79,7 +79,7 @@ def save(cfg: Config, path: Path | None = None) -> None:
 
 
 def source_table(cfg: Config, source: Source[C]) -> C:
-    return cast(C, cfg["sources"][source.name])
+    return cast("C", cfg["sources"][source.name])
 
 
 def is_enabled(cfg: Config, source: Source[Any]) -> bool:

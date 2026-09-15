@@ -61,8 +61,10 @@ def check_for_update(
     fetch_latest: Callable[[], str | None] = fetch_latest_commit,
     installed: str | None = None,
 ) -> str | None:
+    if not enabled:
+        return None
     installed = installed or installed_commit()
-    if not enabled or installed is None:
+    if installed is None:
         return None
     latest = _cached_latest(now)
     if latest is None:
