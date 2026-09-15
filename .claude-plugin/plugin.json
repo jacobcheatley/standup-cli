@@ -1,0 +1,12 @@
+{
+  "name": "standup",
+  "description": "Claude Code skills for standup-cli: set and complete personal reminders that surface in the morning standup report",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jacob Cheatley"
+  },
+  "homepage": "https://github.com/jacobcheatley/standup-cli",
+  "repository": "https://github.com/jacobcheatley/standup-cli",
+  "license": "MIT",
+  "keywords": ["standup", "reminders", "skills"]
+}

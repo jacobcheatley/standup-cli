@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "standup-cli",
+  "description": "Claude Code skills that drive the standup CLI",
+  "owner": {
+    "name": "Jacob Cheatley",
+    "url": "https://github.com/jacobcheatley"
+  },
+  "plugins": [
+    {
+      "name": "standup",
+      "description": "Set and complete personal reminders that surface in the morning standup report",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

@@ -125,13 +125,22 @@ tracker, that surfaces at the top of the report. Manage them directly with
 ships a skill at `skills/reminder/` that teaches Claude when and how to use
 those commands.
 
-From a clone:
+Install it as a Claude Code plugin in one line (the repo doubles as its own
+plugin marketplace; `--sparse` keeps the clone to the two folders Claude needs):
+
+```bash
+claude plugin marketplace add jacobcheatley/standup-cli --sparse .claude-plugin skills && claude plugin install standup@standup-cli
+```
+
+The skill then appears as `/standup:reminder`, and GitHub marketplaces refresh
+on the next session, so updates arrive on their own. Remove it with
+`claude plugin uninstall standup@standup-cli`.
+
+Working from a clone instead? Symlink the folder and skip the plugin:
 
 ```bash
 ln -s "$(pwd)/skills/reminder" ~/.claude/skills/reminder
 ```
-
-or just copy the `skills/reminder` folder into `~/.claude/skills/`.
 
 ## Click-to-copy note lines
 
