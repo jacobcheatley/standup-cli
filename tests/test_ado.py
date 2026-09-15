@@ -85,3 +85,16 @@ def test_fetch_with_unconfigured_org_skips_subprocess_calls(monkeypatch: Any) ->
     assert raw["open"] == [] and raw["done"] == [] and raw["pipelines"] == []
     assert raw["open_error"] == "set org and projects in config (standup config init)"
     assert raw["done_error"] is None and raw["pipelines_error"] is None
+
+
+def test_fetch_dependent_with_unconfigured_projects_skips_pipeline_fetch(monkeypatch: Any) -> None:
+    def _run_should_not_be_called(*args: Any, **kwargs: Any) -> str:
+        raise AssertionError("run() must not be called when projects are unset")
+
+    monkeypatch.setattr(ado, "run", _run_should_not_be_called)
+    cfg: ado.AdoConfig = {"enabled": True, "org": "acme", "projects": [], "pipeline_branches": ["main"]}
+    ctx = SourceContext(config=cfg, now=NOW, cutoff=NOW - timedelta(days=3), hide_handled=False)
+    raw = ado.source.fetch(ctx)
+    merged = {"abc": {"title": "t", "url": "u"}}
+    result = ado.source.fetch_dependent(ctx, raw, merged)
+    assert "standup config init" in (result["pipelines_error"] or "")

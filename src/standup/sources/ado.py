@@ -37,6 +37,8 @@ def _ado_list_prs(
 
 
 def _ado_fan_out(status: str, org_url: str, projects: list[str]) -> list[dict[str, Any]]:
+    if not projects:
+        raise FetchError("set org and projects in config (standup config init)")
     email = run(["az", "account", "show", "--query", "user.name", "-o", "tsv"]).strip()
     if not email:
         raise FetchError("az account show returned empty user.name (run `az login`)")
@@ -202,6 +204,8 @@ def fetch_ado_pipelines(
     runs of a merged commit count too. Batched CI runs report only the newest
     commit, so older merges folded into a batch go unattributed (accepted).
     """
+    if not projects:
+        return [], "set org and projects in config (standup config init)"
     if not sha_to_pr:
         return [], None
     try:
@@ -395,13 +399,6 @@ class AdoSource:
     def fetch(self, ctx: SourceContext[AdoConfig]) -> dict[str, Any]:
         url = org_url(ctx.config["org"])
         projects = ctx.config["projects"]
-        if not ctx.config["org"] or not projects:
-            return {
-                "org_url": url,
-                "open": [], "done": [], "pipelines": [],
-                "open_error": "set org and projects in config (standup config init)",
-                "done_error": None, "pipelines_error": None,
-            }
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
             open_future = ex.submit(fetch_ado_open, ctx.hide_handled, url, projects)
             done_future = ex.submit(fetch_ado_done, ctx.cutoff, url, projects) if ctx.cutoff else None
