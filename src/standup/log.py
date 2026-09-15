@@ -29,7 +29,7 @@ def dbg(msg: str) -> None:
 
 @contextmanager
 def timed(label: str) -> Iterator[None]:
-    """Log `label` start + elapsed on exit. Marks failures with ✗."""
+    """Log label start and elapsed on exit; failed blocks get an x marker."""
     if not _VERBOSE:
         yield
         return

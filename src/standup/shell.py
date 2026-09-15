@@ -10,7 +10,6 @@ class FetchError(Exception):
 
 def _cmd_summary(cmd: list[str]) -> str:
     """Compact one-line repr of a subprocess command for debug logs."""
-    # Keep it short: tool + the meaningful verb/path bits, capped.
     return " ".join(cmd)[:160]
 
 
