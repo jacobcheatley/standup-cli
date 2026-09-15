@@ -4,6 +4,7 @@ import concurrent.futures
 import copy
 import json
 import os
+import shlex
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -43,7 +44,8 @@ def run_wizard(sources: list[Source[Any]], current: Config) -> Config:
             f"Enable the {source.name} source?", default=bool(table.get("enabled", True))
         )
         if enabled:
-            cfg["sources"][source.name] = dict(source.configure(config.source_table(cfg, source)))
+            configured = source.configure(config.source_table(cfg, source))
+            cfg["sources"][source.name] = {**table, **configured}
         else:
             table["enabled"] = False
             cfg["sources"][source.name] = table
@@ -100,7 +102,11 @@ def main(
         ),
     ] = None,
     envelope: Annotated[
-        Path | None, typer.Option(help="Render this saved envelope instead of fetching")
+        Path | None,
+        typer.Option(
+            exists=True, dir_okay=False, readable=True,
+            help="Render this saved envelope instead of fetching",
+        ),
     ] = None,
     save_envelope: Annotated[Path | None, typer.Option(help="Write the fetched envelope here")] = None,
     verbose: Annotated[
@@ -136,7 +142,10 @@ def main(
         update_future = ex.submit(update.check_for_update, cfg["update"]["check"], now)
         if envelope is not None:
             dbg(f"loading saved envelope from {envelope}")
-            data: dict[str, Any] = json.loads(envelope.read_text())
+            try:
+                data: dict[str, Any] = json.loads(envelope.read_text())
+            except json.JSONDecodeError as e:
+                raise typer.BadParameter(f"not valid JSON: {e}", param_hint="--envelope") from e
         else:
             data = report.fetch_all(SOURCES, cfg, hide_handled, now)
         update_hint = update_future.result()
@@ -189,7 +198,8 @@ def config_edit() -> None:
     if not path.exists():
         cfg, _ = config.load(SOURCES)
         config.save(cfg)
-    raise typer.Exit(subprocess.run([os.environ.get("EDITOR", "vi"), str(path)]).returncode)
+    editor = shlex.split(os.environ.get("EDITOR") or "vi")
+    raise typer.Exit(subprocess.run([*editor, str(path)]).returncode)
 
 
 @app.command("update")

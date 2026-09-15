@@ -74,6 +74,20 @@ def test_bad_config_override_is_a_usage_error(tmp_path: Path) -> None:
     assert result.exit_code == 2 and "unknown source" in result.output
 
 
+def test_missing_envelope_file_is_a_usage_error() -> None:
+    _write_config()
+    result = runner.invoke(app, ["--envelope", "/nonexistent.json"])
+    assert result.exit_code == 2
+
+
+def test_malformed_envelope_file_is_a_usage_error(tmp_path: Path) -> None:
+    _write_config()
+    path = tmp_path / "bad.json"
+    path.write_text("not json")
+    result = runner.invoke(app, ["--envelope", str(path)])
+    assert result.exit_code == 2 and "not valid JSON" in result.output
+
+
 def test_missing_config_non_interactive_exits_1(tmp_path: Path) -> None:
     result = runner.invoke(app, ["--markdown", "--envelope", str(_envelope(tmp_path))])
     assert result.exit_code == 1 and "standup config init" in result.output

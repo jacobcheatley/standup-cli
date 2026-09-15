@@ -70,12 +70,12 @@ def check_for_update(
     if latest is None:
         try:
             latest = fetch_latest()
+            if latest is None:
+                return None
+            _cache_path().parent.mkdir(parents=True, exist_ok=True)
+            _cache_path().write_text(json.dumps({"checked_at": now.isoformat(), "latest": latest}))
         except Exception:
             return None
-        if latest is None:
-            return None
-        _cache_path().parent.mkdir(parents=True, exist_ok=True)
-        _cache_path().write_text(json.dumps({"checked_at": now.isoformat(), "latest": latest}))
     if latest == installed:
         return None
     return f"update available ({installed[:7]} -> {latest[:7]}): run standup update"

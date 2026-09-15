@@ -47,6 +47,7 @@ class FileTokenStorage(TokenStorage):
 
     def _save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.touch(mode=0o600, exist_ok=True)
         self.path.write_text(json.dumps(self._data, indent=2))
         os.chmod(self.path, 0o600)
 
@@ -136,15 +137,15 @@ async def _linear_session() -> tuple[Any, _OAuthCallbackServer]:
 
     async def redirect_handler(authorization_url: str) -> None:
         callback_server.start()
-        dbg("linear: no valid cached token — starting OAuth browser consent flow")
+        dbg("linear: no valid cached token, starting OAuth browser consent flow")
         print(f"Linear OAuth: opening {authorization_url}", file=sys.stderr)
         try:
             webbrowser.open(authorization_url)
         except Exception:
-            print("  (couldn't open browser — paste this URL into one)", file=sys.stderr)
+            print("  (couldn't open browser, paste this URL into one)", file=sys.stderr)
 
     async def callback_handler() -> tuple[str, str | None]:
-        dbg("linear: waiting for OAuth redirect (up to 5 min — complete consent in browser)")
+        dbg("linear: waiting for OAuth redirect (up to 5 min, complete consent in browser)")
         await asyncio.get_running_loop().run_in_executor(None, callback_server.event.wait, 300)
         callback_server.stop()
         if callback_server.error:
@@ -221,7 +222,8 @@ async def _linear_fetch_async(enrich_comments: bool = False) -> list[dict[str, A
 
             # Off by default: one list_comments call per issue is slow for little standup value.
             if not enrich_comments:
-                dbg("linear: skipping comment enrichment (use --linear-comments to enable)")
+                dbg("linear: skipping comment enrichment "
+                    "(set linear.comments = true in config or pass -c linear.comments=true)")
                 return issues
             ids: list[str] = [it["id"] for it in issues if it.get("id")]
             if ids:

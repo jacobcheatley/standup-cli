@@ -15,16 +15,13 @@ The first run launches a setup wizard (org names, project lists, which
 sources to enable) and writes `~/.config/standup/config.toml`.
 
 If an older `standup` script already lives in `~/.local/bin`, move it aside
-first so the new one can take its place:
-
-```bash
-mv ~/.local/bin/standup ~/.local/bin/standup.old
-```
+first so the new one can take its place.
 
 ## Sources and their auth
 
-Each source uses whatever you already have logged in; standup-cli never
-stores a credential of its own.
+Each source uses whatever you already have logged in; standup-cli never asks
+you to type a credential. It shells out to `gh` and `az`, and for Linear it
+runs a browser OAuth flow whose token it caches locally.
 
 - **GitHub**: `gh auth login`. Reads via `gh api search/issues`.
 - **Azure DevOps**: `az login`, then `az extension add --name azure-devops`.
@@ -74,13 +71,15 @@ enabled = true
 ### `-c KEY=VALUE` overrides
 
 `-c`/`--config` patches the loaded config for one run only; it is repeatable.
-KEY is a dotted path (a source name is short for `sources.<name>`), VALUE is
-parsed as a TOML value.
+KEY is a dotted path whose first segment is `report`, `update`, or a source
+name (short for `sources.<name>`); VALUE is parsed as a TOML value.
 
 ```bash
 standup -c linear.comments=true
 standup -c github.orgs=[]
 standup -c ado.projects='["Only This"]'
+standup -c report.max_age_days=0
+standup -c update.check=false
 ```
 
 ## Commands
@@ -113,6 +112,10 @@ standup linear reset-auth          Delete the cached Linear OAuth token
 
 `--markdown` and `--rich` are mutually exclusive, as are `--all` and
 `--max-age-days`.
+
+`--include-handled` cannot restore approved PRs or duplicate Linear issues
+from a saved `--envelope`: that filtering happens at fetch time, before the
+envelope is written.
 
 ## Reminders and the Claude Code skill
 

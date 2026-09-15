@@ -85,7 +85,7 @@ def test_override_falls_back_to_string_for_bare_words() -> None:
     assert out["sources"]["fake"]["orgs"] == "plain"
 
 
-@pytest.mark.parametrize("bad", ["nosuch.key=1", "fake=1", "noequals", "fake.orgs"])
+@pytest.mark.parametrize("bad", ["nosuch.key=1", "fake=1", "noequals", "fake.orgs", "fake.orgs.0=x"])
 def test_override_rejects_bad_keys(bad: str) -> None:
     with pytest.raises(config.OverrideError):
         config.apply_overrides(config.defaults(SOURCES), [bad])

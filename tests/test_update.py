@@ -33,6 +33,14 @@ def test_network_failure_is_no_update() -> None:
     assert update.check_for_update(True, NOW, fetch_latest=boom, installed="a" * 40) is None
 
 
+def test_cache_write_failure_is_no_update(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    blocked = tmp_path / "not-a-directory"
+    blocked.write_text("")
+    monkeypatch.setenv("XDG_DATA_HOME", str(blocked))
+    hint = update.check_for_update(True, NOW, fetch_latest=lambda: "b" * 40, installed="a" * 40)
+    assert hint is None
+
+
 def test_cache_is_reused_within_a_day_and_refreshed_after() -> None:
     calls: list[int] = []
 

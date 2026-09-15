@@ -72,3 +72,16 @@ def test_not_green_truth_table() -> None:
     assert ado.build_not_green({"status": "completed", "result": "succeeded"}) is False
     assert ado.build_not_green({"status": "completed", "result": "failed"}) is True
     assert ado.build_not_green({"status": "inProgress", "result": None}) is True
+
+
+def test_fetch_with_unconfigured_org_skips_subprocess_calls(monkeypatch: Any) -> None:
+    def _run_should_not_be_called(*args: Any, **kwargs: Any) -> str:
+        raise AssertionError("run() must not be called when org/projects are unset")
+
+    monkeypatch.setattr(ado, "run", _run_should_not_be_called)
+    cfg: ado.AdoConfig = {"enabled": True, "org": "acme", "projects": [], "pipeline_branches": ["main"]}
+    ctx = SourceContext(config=cfg, now=NOW, cutoff=None, hide_handled=False)
+    raw = ado.source.fetch(ctx)
+    assert raw["open"] == [] and raw["done"] == [] and raw["pipelines"] == []
+    assert raw["open_error"] == "set org and projects in config (standup config init)"
+    assert raw["done_error"] is None and raw["pipelines_error"] is None

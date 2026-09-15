@@ -395,6 +395,13 @@ class AdoSource:
     def fetch(self, ctx: SourceContext[AdoConfig]) -> dict[str, Any]:
         url = org_url(ctx.config["org"])
         projects = ctx.config["projects"]
+        if not ctx.config["org"] or not projects:
+            return {
+                "org_url": url,
+                "open": [], "done": [], "pipelines": [],
+                "open_error": "set org and projects in config (standup config init)",
+                "done_error": None, "pipelines_error": None,
+            }
         with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
             open_future = ex.submit(fetch_ado_open, ctx.hide_handled, url, projects)
             done_future = ex.submit(fetch_ado_done, ctx.cutoff, url, projects) if ctx.cutoff else None

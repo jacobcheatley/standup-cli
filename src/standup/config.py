@@ -113,6 +113,10 @@ def apply_overrides(cfg: Config, overrides: list[str]) -> Config:
         parts = _resolve_key(cfg, key)
         table = out
         for part in parts[:-1]:
+            if not isinstance(table, dict):
+                raise OverrideError(f"config key {key!r} descends into a non-table value")
             table = table.setdefault(part, {})
+        if not isinstance(table, dict):
+            raise OverrideError(f"config key {key!r} descends into a non-table value")
         table[parts[-1]] = _parse_value(value)
     return cast(Config, out)
